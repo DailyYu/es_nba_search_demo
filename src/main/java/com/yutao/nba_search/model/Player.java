@@ -1,5 +1,6 @@
 package com.yutao.nba_search.model;
 
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 
 import java.util.Date;

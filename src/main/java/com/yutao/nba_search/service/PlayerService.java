@@ -1,6 +1,8 @@
 package com.yutao.nba_search.service;
 
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.yutao.nba_search.dao.PlayerDAO;
 import com.yutao.nba_search.model.Player;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +16,12 @@ public class PlayerService {
     @Autowired
     private PlayerDAO playerDAO;
 
-    public List<Player> listPlayerByPage(int offset, int pageSize) {
+
+    public JSONObject getPlayerById(int pid) {
+        return playerDAO.getPlayerById(pid);
+    }
+
+    public List<JSONObject> listPlayerByPage(int offset, int pageSize) {
         return playerDAO.listPlayer(offset, pageSize);
     }
 

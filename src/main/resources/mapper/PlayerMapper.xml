@@ -2,12 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.yutao.nba_search.dao.PlayerDAO">
-    <select id="listAllPlayer" resultType="com.yutao.nba_search.model.Player">
+
+
+    <select id="getPlayerById" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT * FROM nba WHERE pid = #{pid};
+    </select>
+
+    <select id="listAllPlayer" resultType="com.alibaba.fastjson.JSONObject">
         SELECT * FROM nba;
     </select>
 
-    <select id="listPlayer" resultType="com.yutao.nba_search.model.Player">
-        SELECT * FROM nba LIMIT #{offset}, #{pageSize};
+    <select id="listPlayer" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT * FROM nba LIMIT #{pageSize} OFFSET #{offset};
     </select>
 
 </mapper>
