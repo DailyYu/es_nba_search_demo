@@ -25,11 +25,17 @@ public class ESBasicServiceTests {
     private ESBasicService esBasicService;
 
     @Test
-    public void addPlayerTest() {
+    public void addPlayerTest() throws IOException {
         Player player = new Player();
         player.setCname("小乔丹");
         player.setEname("Jordan");
-        boolean res = esBasicService.addPlayer(player, 1);
+        boolean res = false;
+        try{
+            res = esBasicService.addPlayer(player, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         if(res) {
             System.out.println("--------- add player success!");
         } else {
@@ -38,19 +44,14 @@ public class ESBasicServiceTests {
     }
 
     @Test
-    public void batchAddPlayerTest() {
+    public void batchAddPlayerTest() throws IOException {
         List<Player> players = new ArrayList<Player>();
         Player player1 = playerService.getPlayerById(101).toJavaObject(Player.class);
         players.add(player1);
         Player player2 = playerService.getPlayerById(102).toJavaObject(Player.class);
         players.add(player2);
 
-        boolean res = false;
-        try{
-            res = esBasicService.batchAddPlayer(players);
-        }catch (IOException e) {
-            System.out.println(e.toString());
-        }
+        boolean res = esBasicService.batchAddPlayer(players);
         if(res) {
             System.out.println("--------- add player success!");
         } else {
@@ -59,7 +60,7 @@ public class ESBasicServiceTests {
     }
 
     @Test
-    public void addAllPlayerToESTest() {
+    public void addAllPlayerToESTest() throws IOException {
         boolean res =esBasicService.addAllPlayerToES();
         if(res) {
             System.out.println("--------- add players success!");
@@ -92,12 +93,8 @@ public class ESBasicServiceTests {
     }
 
     @Test
-    public void getPlayerTest() {
-        try{
-            Map<String, Object> res = esBasicService.getPlayer(100);
-            System.out.println(JSON.toJSONString(res));
-        }catch (Exception e) {
-            System.out.println(e.toString());
-        }
+    public void getPlayerTest() throws IOException {
+        Map<String, Object> res = esBasicService.getPlayer(1);
+        System.out.println(JSON.toJSONString(res));
     }
 }

@@ -12,6 +12,7 @@ import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -39,32 +40,21 @@ public class ESBasicService {
     @Autowired
     private RestHighLevelClient restHighLevelClient;
 
-//    public Player mapToPlayer(Map<String, Object> m) {
-//        Set<String> keys = m.keySet();
-//        for(String key : keys) {
-//
-//        }
-//    }
 
     /**
      * 单条数据插入
-     * @param player
-     * @param id
-     * @return
      */
-    public boolean addPlayer(Player player, int id) {
-
+    public boolean addPlayer(Player player, int id) throws IOException {
         //构建请求
         IndexRequest request = new IndexRequest(INDEX_NAME)
                 .id(String.valueOf(id)) //指明文档的id
                 .source(JSON.toJSONString(player), XContentType.JSON); //指明文档的内容和文档的格式
-        try{
-            restHighLevelClient.index(request, RequestOptions.DEFAULT); //发送请求
-        } catch (IOException e) {
-            System.out.println(e.toString());
+        IndexResponse response = restHighLevelClient.index(request, RequestOptions.DEFAULT); //发送请求
+        if(response.status() == RestStatus.OK) {
+            return true;
+        } else {
             return false;
         }
-        return true;
     }
 
     /**
@@ -80,7 +70,6 @@ public class ESBasicService {
                     .source(JSON.toJSONString(players.get(i)), XContentType.JSON);
             bulkRequest.add(request);
         }
-
         BulkResponse bulkResponse = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
         if(bulkResponse.status() == RestStatus.OK) {
             System.out.println("插入成功");
@@ -88,27 +77,19 @@ public class ESBasicService {
         } else {
             return false;
         }
-
     }
 
     /**
      * 插入postgresql中的所有数据到ElasticSearch中
      */
-    public boolean addAllPlayerToES() {
+    public boolean addAllPlayerToES() throws IOException {
         List<JSONObject> jsonPlayers = playerDAO.listAllPlayer();
 
         List<Player> players = new ArrayList<Player>();
         for(JSONObject jo : jsonPlayers) {
             players.add(jo.toJavaObject(Player.class));
         }
-
-        boolean res = false;
-        try{
-            res = batchAddPlayer(players);
-        }catch (IOException e) {
-            System.out.println(e.toString());
-        }
-        return res;
+        return batchAddPlayer(players);
     }
 
     /**
