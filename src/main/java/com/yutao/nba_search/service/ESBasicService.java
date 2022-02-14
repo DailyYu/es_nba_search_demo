@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.yutao.nba_search.dao.PlayerDAO;
 import com.yutao.nba_search.model.Player;
+import com.yutao.nba_search.util.Result;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -124,17 +125,18 @@ public class ESBasicService {
     }
 
     /**
-     * 查询文档（简单查询）
+     * 查询文档,根据id（简单查询）
      */
 
-    public Map<String, Object> getPlayer(int pid) throws IOException {
+    public Result getPlayer(int pid) throws IOException {
         //构建request
         GetRequest request = new GetRequest(INDEX_NAME)
                 .id(String.valueOf(pid));
         //发送请求，并得到response
         GetResponse response = restHighLevelClient.get(request, RequestOptions.DEFAULT);
+        //GetResponse里没有状态属性，可以认为如果没有抛出异常，能向下执行就是成功查询出数据
         Map<String, Object> source = response.getSource();
-        return source;
+        return Result.success(response.getSource());
     }
 
 

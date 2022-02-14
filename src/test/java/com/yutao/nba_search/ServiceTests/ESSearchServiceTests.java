@@ -3,6 +3,7 @@ package com.yutao.nba_search.ServiceTests;
 
 import com.alibaba.fastjson.JSON;
 import com.yutao.nba_search.service.ESSearchService;
+import com.yutao.nba_search.util.Result;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 @SpringBootTest
 public class ESSearchServiceTests {
@@ -21,26 +24,23 @@ public class ESSearchServiceTests {
 
     @Test
     public void searchWithTerm() throws IOException {
-        SearchHit[] res = esSearchService.searchWithTerm("ename", "丹尼-格林");
+        Result res = esSearchService.searchWithTerm("ename", "丹尼-格林", 0, 5);
         System.out.println("--------searchWithTerm---------");
-        System.out.println(res.length);
         System.out.println(JSON.toJSONString(res));
     }
 
     @Test
     public void searchWithMatch() throws IOException {
-        SearchHit[] res = esSearchService.searchWithMatch("cname", "林书豪");
+        Result res = esSearchService.searchWithMatch("team_name", "快船", 0, 5);
         System.out.println("--------searchWithMatch---------");
-        System.out.println(res.length);
-        System.out.println(JSON.toJSONString(res));
+        System.out.println(JSON.toJSONString(res.getData()));
     }
 
 
     @Test
     public void searchWithBoolQueryTest() throws IOException {
-        SearchHit[] res = esSearchService.searchWithBoolQuery("team_name", "快船", "position", "后卫");
+        Result res = esSearchService.searchWithBoolQuery("快船",  "后卫", 0, 5);
         System.out.println("--------searchWithBoolQuery---------");
-        System.out.println(res.length);
         System.out.println(JSON.toJSONString(res));
     }
 

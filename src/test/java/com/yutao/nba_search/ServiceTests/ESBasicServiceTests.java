@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.yutao.nba_search.model.Player;
 import com.yutao.nba_search.service.ESBasicService;
 import com.yutao.nba_search.service.PlayerService;
+import com.yutao.nba_search.util.Result;
 import org.apache.ibatis.ognl.ObjectElementsAccessor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,7 @@ public class ESBasicServiceTests {
         }
     }
 
-    @Test
+/*    @Test
     public void addAllPlayerToESTest() throws IOException {
         boolean res =esBasicService.addAllPlayerToES();
         if(res) {
@@ -67,7 +68,7 @@ public class ESBasicServiceTests {
         } else {
             System.out.println("--------- add players failure!");
         }
-    }
+    }*/
 
     @Test
     public void deletePlayerTest() throws IOException {
@@ -79,7 +80,7 @@ public class ESBasicServiceTests {
         }
     }
 
-    @Test
+    /*@Test
     public void updatePlayerTest() throws IOException {
         Player player = new Player();
         player.setCname("大乔丹");
@@ -90,11 +91,19 @@ public class ESBasicServiceTests {
         } else {
             System.out.println("--------- update player failure!");
         }
-    }
+    }*/
 
     @Test
     public void getPlayerTest() throws IOException {
-        Map<String, Object> res = esBasicService.getPlayer(1);
-        System.out.println(JSON.toJSONString(res));
+        Result res = esBasicService.getPlayer(200);
+        System.out.println(JSON.toJSONString(res.getData()));
     }
+
+/*    @Test public void sendRequest() throws IOException, InterruptedException {
+        for(int i=0; i<100; i++) {
+            esBasicService.getPlayer(i+100);
+            Thread.sleep(1);
+        }
+    }*/
+
 }
