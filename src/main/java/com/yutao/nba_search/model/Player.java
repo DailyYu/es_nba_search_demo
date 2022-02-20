@@ -3,7 +3,7 @@ package com.yutao.nba_search.model;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class Player {
 
@@ -12,6 +12,7 @@ public class Player {
     @JSONField(name = "cname")
     private String cname;
 
+    @JSONField(name = "ename")
     private String ename;
 
     @JSONField(name = "team_name")
@@ -19,18 +20,18 @@ public class Player {
 
     private java.sql.Date birthday;
 
-    private String career;
+    private int career;
 
-    private String height;
+    private int height;
 
     @JSONField(name = "uniform_number")
-    private String number;
+    private int number;
 
     private String position;
 
-    private String salary;
+    private int salary;
 
-    private String weight;
+    private float weight;
 
     public int getPid() {
         return pid;
@@ -64,35 +65,35 @@ public class Player {
         this.teamName = teamName;
     }
 
-    public java.sql.Date getBirthday() {
+    public Date getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(java.sql.Date birthday) {
+    public void setBirthday(Date birthday) {
         this.birthday = birthday;
     }
 
-    public String getCareer() {
+    public int getCareer() {
         return career;
     }
 
-    public void setCareer(String career) {
+    public void setCareer(int career) {
         this.career = career;
     }
 
-    public String getHeight() {
+    public int getHeight() {
         return height;
     }
 
-    public void setHeight(String height) {
+    public void setHeight(int height) {
         this.height = height;
     }
 
-    public String getNumber() {
+    public int getNumber() {
         return number;
     }
 
-    public void setNumber(String number) {
+    public void setNumber(int number) {
         this.number = number;
     }
 
@@ -104,19 +105,19 @@ public class Player {
         this.position = position;
     }
 
-    public String getSalary() {
+    public int getSalary() {
         return salary;
     }
 
-    public void setSalary(String salary) {
+    public void setSalary(int salary) {
         this.salary = salary;
     }
 
-    public String getWeight() {
+    public float getWeight() {
         return weight;
     }
 
-    public void setWeight(String weight) {
+    public void setWeight(float weight) {
         this.weight = weight;
     }
 }

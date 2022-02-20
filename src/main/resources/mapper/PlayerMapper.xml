@@ -5,15 +5,15 @@
 
 
     <select id="getPlayerById" resultType="com.alibaba.fastjson.JSONObject">
-        SELECT * FROM nba WHERE pid = #{pid};
+        SELECT * FROM nba_players WHERE pid = #{pid};
     </select>
 
     <select id="listAllPlayer" resultType="com.alibaba.fastjson.JSONObject">
-        SELECT * FROM nba;
+        SELECT * FROM nba_players;
     </select>
 
     <select id="listPlayer" resultType="com.alibaba.fastjson.JSONObject">
-        SELECT * FROM nba LIMIT #{pageSize} OFFSET #{offset};
+        SELECT * FROM nba_players LIMIT #{pageSize} OFFSET #{offset};
     </select>
 
 </mapper>

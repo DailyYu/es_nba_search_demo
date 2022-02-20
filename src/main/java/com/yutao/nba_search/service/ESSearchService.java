@@ -17,6 +17,8 @@ import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
@@ -27,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,16 +55,14 @@ public class ESSearchService {
 
     /**
      * 不分词查询某个字段
-     *
-     * 因为倒排索引的原因，这个里可能会出现有数据，但是查询不到的情况
       */
 
     public Result searchWithTerm(String keyword, String val, int from, int size) throws IOException {
         SearchRequest request = new SearchRequest(INDEX_NAME);
 
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        TermQueryBuilder builder =  QueryBuilders.termQuery(keyword + ".keyword", val); //这样写英文能查出内容，中文查不出
-        //TermQueryBuilder builder =  QueryBuilders.termQuery(keyword, val); //这样写中文和英文都查不出内容
+        //TermQueryBuilder builder =  QueryBuilders.termQuery(keyword + ".keyword", val);
+        TermQueryBuilder builder =  QueryBuilders.termQuery(keyword, val); //因为不分词，如果是text类型字段则汉字只能查询一个字，英语是一个单词。如果是keyword字段则是完全匹配才能查询出结果
         searchSourceBuilder.query(builder).from(from).size(size);
         request.source(searchSourceBuilder);
 
@@ -87,17 +88,14 @@ public class ESSearchService {
 
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         MatchQueryBuilder builder =  QueryBuilders.matchQuery(keyword, val); //具体的查询条件
-        searchSourceBuilder.query(builder).from(from).size(size); //设置分页，如果不设置分页，好像是默认显示十条记录
-        /* 分页设置也可以这样
-        searchSourceBuilder.from(0); //设置分页，起始位置
-        searchSourceBuilder.size(5); //设置分页，每页数量
-        */
+        searchSourceBuilder.query(builder).from(from).size(size); //设置分页，如果不设置分页默认返回十条记录
         request.source(searchSourceBuilder); //设置请求源
 
         SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT); //查询并得到结果
         if(response.status() != RestStatus.OK) {
             return Result.failure();
         }
+        //System.out.println(JSON.toJSONString(response));
         SearchHit[] hits = response.getHits().getHits(); //固定写法
         List<Map<String, Object>> data = new ArrayList<>();
         for(SearchHit hit:hits) {
@@ -108,7 +106,7 @@ public class ESSearchService {
 
     /**
      * 组合查询（布尔查询），多个查询条件
-     * 查询某个球队的某个位置，按照职业生涯开始时间排序
+     * 查询某个球队的某个位置，按照薪资降序
      */
 
     public Result searchWithBoolQuery(String team_name, String position, int from, int size) throws IOException {
@@ -127,11 +125,11 @@ public class ESSearchService {
         builder.must(QueryBuilders.matchQuery("position", position));  //又是该位置
         searchSourceBuilder.query(builder);
         //排序写法1
-        FieldSortBuilder sortBuilder = SortBuilders.fieldSort("birthday").order(SortOrder.ASC);
+        FieldSortBuilder sortBuilder = SortBuilders.fieldSort("salary").order(SortOrder.DESC);
         searchSourceBuilder.sort(sortBuilder); //这里可以构建一个FieldSortBuilder的List，来进行多个字段的排序
 
         //排序写法2
-        //searchSourceBuilder.sort("birthday", SortOrder.ASC);
+        //searchSourceBuilder.sort("salary", SortOrder.DESC);
         //对text类型字段进行排序，执行会报错误，比如：searchSourceBuilder.sort("career", SortOrder.ASC);
 
         //分页
@@ -152,46 +150,37 @@ public class ESSearchService {
     }
 
 
-
     /**
-     * 聚合查询，计算查询结果数量
+     * 聚合查询，根据球员位置查询，然后按照球队分组,返回每个球队该位置的人数
      */
 
-    public SearchHit[] searchWithAggregationCount(String keyword, String val) throws IOException {
+    public Result searchWithAggregationGroup(String keyword, String val) throws IOException {
         SearchRequest request = new SearchRequest(INDEX_NAME);
 
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         MatchQueryBuilder builder = QueryBuilders.matchQuery(keyword, val);
-        AggregationBuilder aggregation = AggregationBuilders.count("player_num").field("pid"); //计数
-        searchSourceBuilder.query(builder);
+        //不能在text类型字段上分组，不然执行会报错
+        AggregationBuilder aggregation = AggregationBuilders.terms("teamName").field("team_name");
         searchSourceBuilder.aggregation(aggregation);
-        searchSourceBuilder.from(0).size(20);
-
         request.source(searchSourceBuilder);
         SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
-        System.out.println(JSON.toJSONString(response.getAggregations()));
-        return  response.getHits().getHits();
+
+        if(response.status() != RestStatus.OK) {
+          return Result.failure();
+        }
+        Terms terms = response.getAggregations().get("teamName");
+        List<? extends Terms.Bucket> buckets = terms.getBuckets();
+        List<Map<String, Long>> data = new ArrayList<Map<String, Long>>();
+        for(Terms.Bucket bucket:buckets) {
+            Map<String, Long> temp = new HashMap<String, Long>();
+            temp.put(bucket.getKeyAsString(), bucket.getDocCount());
+            data.add(temp);
+        }
+        return Result.success(data);
     }
 
     /**
-     * 聚合查询，查询结果根据球队名分组
+     * 聚合查询嵌套
      */
-
-    public SearchHit[] searchWithAggregationTerms(String keyword, String val) throws IOException {
-        SearchRequest request = new SearchRequest(INDEX_NAME);
-
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        MatchQueryBuilder builder = QueryBuilders.matchQuery(keyword, val);
-        //分组要在keyword字段上才行，不然执行会报错
-        AggregationBuilder aggregation = AggregationBuilders.terms("term_birthday").field("birthday");
-        searchSourceBuilder.query(builder);
-        searchSourceBuilder.aggregation(aggregation);
-
-        request.source(searchSourceBuilder);
-        SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
-
-        System.out.println(JSON.toJSONString(response.getAggregations()));
-        return response.getHits().getHits();
-    }
 
 }

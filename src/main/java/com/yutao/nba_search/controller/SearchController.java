@@ -48,4 +48,11 @@ public class SearchController {
         return esSearchService.searchWithBoolQuery(teamName, position, from, size);
     }
 
+    //http://localhost:8080/search/AggregationByTeamName?field=position&val=后卫
+    @GetMapping("/AggregationByTeamName")
+    public Result searchAggregationByTeamName(@RequestParam("field") String keyword,
+                                             @RequestParam("val") String val) throws IOException {
+        return esSearchService.searchWithAggregationGroup(keyword, val);
+    }
+
 }

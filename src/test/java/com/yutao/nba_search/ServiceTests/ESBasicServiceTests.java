@@ -60,7 +60,7 @@ public class ESBasicServiceTests {
         }
     }
 
-/*    @Test
+    @Test
     public void addAllPlayerToESTest() throws IOException {
         boolean res =esBasicService.addAllPlayerToES();
         if(res) {
@@ -68,7 +68,7 @@ public class ESBasicServiceTests {
         } else {
             System.out.println("--------- add players failure!");
         }
-    }*/
+    }
 
     @Test
     public void deletePlayerTest() throws IOException {

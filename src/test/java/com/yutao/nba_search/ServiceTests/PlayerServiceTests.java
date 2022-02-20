@@ -22,6 +22,7 @@ public class PlayerServiceTests {
         System.out.println(JSON.toJSONString(player));
     }
 
+
     @Test
     public void listPlayerByPageTest() {
         List<JSONObject> res = playerService.listPlayerByPage(0,5);

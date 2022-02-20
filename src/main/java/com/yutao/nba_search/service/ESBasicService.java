@@ -86,6 +86,7 @@ public class ESBasicService {
     public boolean addAllPlayerToES() throws IOException {
         List<JSONObject> jsonPlayers = playerDAO.listAllPlayer();
 
+        System.out.println(jsonPlayers.size());
         List<Player> players = new ArrayList<Player>();
         for(JSONObject jo : jsonPlayers) {
             players.add(jo.toJavaObject(Player.class));
@@ -134,7 +135,7 @@ public class ESBasicService {
                 .id(String.valueOf(pid));
         //发送请求，并得到response
         GetResponse response = restHighLevelClient.get(request, RequestOptions.DEFAULT);
-        //GetResponse里没有状态属性，可以认为如果没有抛出异常，能向下执行就是成功查询出数据
+        //GetResponse里没有状态属性，可以认为如果没有抛出异常，能向下执行就是成功查询出数
         Map<String, Object> source = response.getSource();
         return Result.success(response.getSource());
     }

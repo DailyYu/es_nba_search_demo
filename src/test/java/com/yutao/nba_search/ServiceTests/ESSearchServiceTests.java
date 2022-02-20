@@ -24,7 +24,7 @@ public class ESSearchServiceTests {
 
     @Test
     public void searchWithTerm() throws IOException {
-        Result res = esSearchService.searchWithTerm("ename", "丹尼-格林", 0, 5);
+        Result res = esSearchService.searchWithTerm("cname", "林", 0, 5);
         System.out.println("--------searchWithTerm---------");
         System.out.println(JSON.toJSONString(res));
     }
@@ -54,8 +54,7 @@ public class ESSearchServiceTests {
 
     @Test
     public void searchWithAggregationTermsTest() throws IOException {
-        SearchHit[] res = esSearchService.searchWithAggregationTerms("team_name", "快船");
-        System.out.println(res.length);
+        Result res = esSearchService.searchWithAggregationGroup("position", "后卫");
         System.out.println(JSON.toJSONString(res));
     }
 }
